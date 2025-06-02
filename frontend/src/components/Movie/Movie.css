@@ -1,0 +1,26 @@
+.add-user-form > :not(:last-child) {
+  margin-right: 10px;
+}
+
+.add-user-input {
+  padding: 5px;
+}
+
+.add-user-button {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.user-creation-success {
+  color: green;
+}
+
+.user-creation-error {
+  color: red;
+}
+
+.container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
