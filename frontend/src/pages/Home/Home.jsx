@@ -11,7 +11,10 @@ const DEFAULT_FORM_VALUES = {
 function Home() {
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
   const [movies, setMovies] = useState([]);
-  const listmovies = movies.map((movie) => <Movie prop={movie} />);
+  const listmovies = movies
+    .filter((movie) => movie.title.includes(formValues.searchMovie))
+    .map((movie) => <Movie prop={movie} />);
+  const isEmptyMovies = listmovies.length === 0;
 
   function useFetchmovies() {
     useEffect(() => {
@@ -53,7 +56,12 @@ function Home() {
           }
         />
         <p>Retour : {formValues.searchMovie}</p>
-        <ul>{listmovies}</ul>;{/*<p>{movies[1].original_title}</p>*/}
+
+        {isEmptyMovies ? (
+          <p className="App-intro">No movies found</p>
+        ) : (
+          <div class="container">{listmovies}</div>
+        )}
         {/*<p>
           Edit <code>src/App.jsx</code> and save to reload.
         </p>

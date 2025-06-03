@@ -19,8 +19,10 @@
   color: red;
 }
 
-.container{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.Movie {
+  width: 22%;
+  border-radius: 50px;
+  border: solid;
+  border-color: #61dafb;
+  align-self:center
 }
