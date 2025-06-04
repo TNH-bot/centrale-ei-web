@@ -13,13 +13,12 @@ const Movie = new typeorm.EntitySchema({
     },
     release_date: { type: String },
     poster_path: { type: String },
-    
+
     tmdb_average: {
       type: 'float',
       nullable: true,
     },
   },
 });
-
 
 export default Movie;
