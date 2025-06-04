@@ -12,6 +12,7 @@ function Movie({ prop }) {
     <div class="Movie">
       <h3 className="Movie-title">{prop.title}</h3>
       <img
+        className="Movie-poster"
         src={`https://image.tmdb.org/t/p/w200${prop.poster_path}`}
         alt="POSTER"
       />

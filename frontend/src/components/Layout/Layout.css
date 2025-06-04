@@ -3,9 +3,10 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  color: white;
+
 }
 
 .Layout-content {
-  padding: 20px;
+  padding: 200px;
+  color: white;
 }

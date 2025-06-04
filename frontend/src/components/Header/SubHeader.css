@@ -1,0 +1,71 @@
+.SubHeader-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 5px;
+    font-size: calc(10px + 2vmin);
+    background-color: white;        /* Fond blanc */
+    color: #333;                    /* Texte foncé pour contraster */
+    padding: 15px 30px;             /* Espacement intérieur */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Ombre légère pour démarquer */
+    position: sticky;               /* Reste en haut au scroll */
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .SubLink {
+    font-weight : 700;
+    color : black;
+  }
+  .SubHeader-container > :not(:last-child) {
+    margin-right: 10px;
+  }
+
+  /* Barre de navigation */
+.navbar {
+    display: flex;
+    background-color: #333;
+    padding: 10px;
+  }
+  
+  /* Éléments de navigation */
+  .nav-item {
+    color: #282c34;
+    padding: 0px;
+    text-decoration: none;
+    position: relative; /* Nécessaire pour dropdown */
+  }
+  
+  /* Hover simple */
+  .nav-item:hover {
+    background-color: #444;
+  }
+  
+  /* Menu déroulant */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%; /* Positionne juste sous le parent */
+    left: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 15px 30px rgba(0,0,0,0.2);
+    z-index: 10;
+  }
+  
+  .dropdown-content a {
+    color: #282c34;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #f0f0f0;
+  }
+  
+  /* Affichage au survol */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
