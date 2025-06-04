@@ -1,8 +1,38 @@
 import express from 'express';
+import axios from 'axios';
 import { appDataSource } from '../datasource.js';
 import Movie from '../entities/movie.js';
+//import { setMovies } from '../services/moviesService.js';
 
 const router = express.Router();
+
+router.get('/tmdb', function (req, res) {
+  var results = [];
+  const options = {
+    method: 'GET',
+    url: 'https://api.themoviedb.org/3/movie/top_rated',
+    params: { language: 'en-US', page: '1' },
+    headers: {
+      accept: 'application/json',
+      Authorization:
+        'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
+    },
+  };
+
+  axios
+    .request(options)
+    .then((axiosres) => {
+      console.log(axiosres.data.results);
+      results = axiosres.data.results;
+      //setMovies(axiosres.data.results);
+    })
+    .catch((err) => console.error(err));
+  console.log('HelloWorld');
+  res.json({
+    message: 'Trending movies fetched',
+    results: results,
+  });
+});
 
 router.get('/', function (req, res) {
   appDataSource
