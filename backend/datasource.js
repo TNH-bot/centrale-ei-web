@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
 
-export const appDataSource = new DataSource({
+const appDataSource = new DataSource({
   type: 'sqlite',
-  database: process.env.DATABASE_NAME,
+  database: 'db.sqlite',
   synchronize: false,
   entities: ['entities/*.js'],
   migrations: ['migrations/*.js'],
@@ -10,3 +10,5 @@ export const appDataSource = new DataSource({
     migrationsDir: 'migrations',
   },
 });
+
+export default appDataSource;
