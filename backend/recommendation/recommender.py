@@ -5,6 +5,40 @@ from entities.movie_actor import MovieStarringActor
 from entities.actor import Actor
 from entities.genre import Genre
 from entities.movie_genre import MovieGenreGenre
+from sqlalchemy.orm import joinedload
+
+def search_movies(title="", genre="", actor="", sort_by="tmdb_avg"):
+    with SessionLocal() as db:
+        query = db.query(Movie)
+
+        if title:
+            query = query.filter(Movie.title.ilike(f"%{title}%"))
+
+        if genre:
+            query = query.join(MovieGenreGenre, Movie.id == MovieGenreGenre.movieId)\
+                         .join(Genre, Genre.id == MovieGenreGenre.genreId)\
+                         .filter(Genre.name.ilike(f"%{genre}%"))
+
+        if actor:
+            query = query.join(MovieStarringActor, Movie.id == MovieStarringActor.movieId)\
+                         .join(Actor, Actor.id == MovieStarringActor.actorId)\
+                         .filter(Actor.name.ilike(f"%{actor}%"))
+
+        order_col = Movie.tmdb_average if sort_by == "tmdb_avg" else \
+                    Movie.title if sort_by == "title" else \
+                    Movie.release_date
+        results = query.order_by(order_col.desc() if sort_by != "title" else order_col.asc()).all()
+
+        return [
+            {
+                "id": m.id,
+                "title": m.title,
+                "release_date": m.release_date,
+                "poster_path": m.poster_path,
+                "tmdb_avg": m.tmdb_average
+            }
+            for m in results
+        ]
 
 
 
@@ -59,6 +93,66 @@ def get_actors_for_movie(movie_id: int):
             .filter(MovieStarringActor.movieId == movie_id).all()
         return [name for (name,) in joins]
 
+def get_movies_by_genre(genre_name: str):
+    with SessionLocal() as db:
+        results = db.query(Movie)\
+            .join(MovieGenreGenre, Movie.id == MovieGenreGenre.movieId)\
+            .join(Genre, Genre.id == MovieGenreGenre.genreId)\
+            .filter(Genre.name.ilike(f"%{genre_name}%"))\
+            .all()
+
+        return [
+            {
+                "id": m.id,
+                "title": m.title,
+                "release_date": m.release_date,
+                "tmdb_avg": m.tmdb_average,
+                "poster_path": m.poster_path,
+            }
+            for m in results
+        ]
+    
+def get_user_profile(user_id: int):
+    with SessionLocal() as db:
+        # Récupérer les notes
+        grades = db.query(Grade).filter(Grade.userId == user_id).all()
+        if not grades:
+            return {"message": "Aucune note pour cet utilisateur."}
+
+        movie_ids = [g.movieId for g in grades]
+        avg_rating = round(sum(g.grade for g in grades) / len(grades), 2)
+        #  Attention : note utilisateur sur 5 — ne pas comparer directement à tmdb_avg (sur 10)
+
+        # Films notés
+        movies = db.query(Movie).filter(Movie.id.in_(movie_ids)).all()
+        rated_titles = [m.title for m in movies]
+
+        # Genres préférés
+        genre_counts = {}
+        genre_data = db.query(Genre.name)\
+            .join(MovieGenreGenre, Genre.id == MovieGenreGenre.genreId)\
+            .filter(MovieGenreGenre.movieId.in_(movie_ids)).all()
+        for (name,) in genre_data:
+            genre_counts[name] = genre_counts.get(name, 0) + 1
+
+        fav_genres = sorted(genre_counts.items(), key=lambda x: -x[1])
+
+        # Acteurs préférés
+        actor_counts = {}
+        actor_data = db.query(Actor.name)\
+            .join(MovieStarringActor, Actor.id == MovieStarringActor.actorId)\
+            .filter(MovieStarringActor.movieId.in_(movie_ids)).all()
+        for (name,) in actor_data:
+            actor_counts[name] = actor_counts.get(name, 0) + 1
+
+        fav_actors = sorted(actor_counts.items(), key=lambda x: -x[1])
+
+        return {
+            "average_rating": avg_rating,
+            "rated_movies": rated_titles,
+            "favorite_genres": fav_genres,
+            "favorite_actors": fav_actors
+        }
 # ----------------------------------------
 
 def recommend_movies(user_id: int, top_n: int = 10, sort_by: str = "tmdb_avg"):
