@@ -19,10 +19,63 @@
   color: red;
 }
 
-.Movie {
+/* .Movie {
   width: 22%;
   border-radius: 50px;
   border: solid;
   border-color: #61dafb;
   align-self:center
+} */
+
+.Movie {
+  display: grid;
+  grid-template-rows: 100px 350px 50px;
+  grid-auto-columns: 300px;   
+  grid-template-areas:
+  "title"
+  "poster"
+  "date";                 
+  justify-content: center;                 
+  background-color: white;
+  color: black;
+  text-decoration: none;
+  padding: 20px;
+  gap : 3px;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+  align-items: center;
 }
+
+.Movie:hover {
+  transform: translateY(-5px);
+}
+
+/* Image dans la carte */
+.movie-poster {
+  grid-area: poster;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  justify-self: center;
+  align-self: center;
+}
+
+/* Titre du film */
+.movie-title {
+  grid-area: title;
+  margin-bottom: 5px;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.movie-release-date {
+  grid-area: date;
+  margin-top: 5px;
+  font-size: 1.1rem;
+  white-space: normal;        /* Autorise le retour à la ligne */
+  overflow: visible;          /* Pas de coupure ou masquage du texte */
+  word-wrap: break-word;      /* Permet de couper les mots si besoin */
+  hyphens: auto; 
+}
+
