@@ -1,20 +1,44 @@
 from entities.database import SessionLocal
 from entities.movie import Movie
 from entities.grade import Grade
+from entities.movie_actor import MovieStarringActor
+from entities.actor import Actor
+from entities.genre import Genre
+from entities.movie_genre import MovieGenreGenre
 
-#=================================
+
+
 def get_user_ratings(user_id: int):
     with SessionLocal() as db:
         grades = db.query(Grade).filter(Grade.userId == user_id).all()
         return [(g.movieId, g.grade) for g in grades]
+    
+def get_movie(movie_id: int):
+    with SessionLocal() as db:
 
-def get_movie(movie_id):
-    fake_movies = {
-        1: {"id": 1, "genres": ["Sci-Fi"], "actors": ["Leonardo DiCaprio", "Elliot Page"]},
-        3: {"id": 3, "genres": ["Sci-Fi", "Drama"], "actors": ["Matthew McConaughey", "Anne Hathaway"]},
-    }
-    return fake_movies.get(movie_id, {"id": movie_id, "genres": [], "actors": []})
+        movie = db.query(Movie).filter(Movie.id == movie_id).first()
+        if not movie:
+            return None
 
+        actor_names = db.query(Actor.name)\
+            .join(MovieStarringActor, Actor.id == MovieStarringActor.actorId)\
+            .filter(MovieStarringActor.movieId == movie_id).all()
+        
+        genre_names = db.query(Genre.name)\
+            .join(MovieGenreGenre, Genre.id == MovieGenreGenre.genreId)\
+            .filter(MovieGenreGenre.movieId == movie_id).all()
+
+
+        return {
+            "id": movie.id,
+            "title": movie.title,
+            "release_date": movie.release_date,
+            "tmdb_avg": movie.tmdb_average,
+            "poster_path": movie.poster_path,
+            "genres": [name for (name,) in genre_names],
+            "actors": [name for (name,) in actor_names]
+        }
+    
 def get_all_movies():
     with SessionLocal() as db:
         movies = db.query(Movie).all()
@@ -29,6 +53,11 @@ def get_all_movies():
             for m in movies
         ]
 
+def get_actors_for_movie(movie_id: int):
+    with SessionLocal() as db:
+        joins = db.query(Actor.name).join(MovieStarringActor, Actor.id == MovieStarringActor.actorId)\
+            .filter(MovieStarringActor.movieId == movie_id).all()
+        return [name for (name,) in joins]
 
 # ----------------------------------------
 
@@ -39,7 +68,7 @@ def recommend_movies(user_id: int, top_n: int = 10, sort_by: str = "tmdb_avg"):
         all_movies = get_all_movies()
         return sorted(all_movies, key=lambda m: -m["tmdb_avg"])[:top_n]
 
-    liked_movies = [m_id for (m_id, r) in user_ratings if r >= 4]
+    liked_movies = [m_id for (m_id, r) in user_ratings if r >= 3.5]
     liked_genres = {}
     actor_scores = {}
 
