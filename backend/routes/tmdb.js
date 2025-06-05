@@ -2,6 +2,7 @@ import express from 'express';
 import axios from 'axios';
 import appDataSource from '../datasource.js';
 import Movie from '../entities/movie.js';
+import Actor from '../entities/actor.js';
 //import { setMovies } from '../services/moviesService.js';
 
 const router = express.Router();
@@ -22,24 +23,60 @@ router.post('/', function (req, res) {
     .request(options)
     .then((axiosres) => {
       const movieRepository = appDataSource.getRepository(Movie);
+      movieRepository.deleteAll();
       //console.log(axiosres.data.results);
       console.log('Trending movies fetched from TMDB');
 
       for (const movie of axiosres.data.results) {
-        const newMovie = movieRepository.create({
-          title: movie.title,
-          release_date: movie.release_date,
-          poster_path: movie.poster_path,
-          tmdb_average: movie.vote_average,
-          overview: movie.overview,
-        });
-
         // Check if the movie already exists before inserting
         movieRepository
-          .findOneBy({ title: newMovie.title })
-          .then((existingMovie) => {
+          .findOneBy({ title: movie.title })
+          .then(async (existingMovie) => {
             if (!existingMovie) {
-              return movieRepository.insert(newMovie);
+              console.log('not exists');
+              const cast = await axios
+                .get(`https://api.themoviedb.org/3/movie/${movie.id}/credits`, {
+                  headers: {
+                    accept: 'application/json',
+                    Authorization:
+                      'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
+                  },
+                })
+                .then((response) => response.data.cast);
+
+              const actorRepository = appDataSource.getRepository(Actor);
+              actorRepository.deleteAll();
+              for (const actor of cast) {
+                // Check if the actor already exists before inserting
+                actorRepository
+                  .findOneBy({ id: actor.id })
+                  .then((existingActor) => {
+                    if (!existingActor) {
+                      const newActor = actorRepository.create({
+                        name: actor.name,
+                        id: actor.id,
+                      });
+                      console.log(`Inserting new actor: ${newActor.name}`);
+
+                      return actorRepository.insert(newActor);
+                    }
+
+                    return null; // Actor already exists, skip insertion
+                  });
+              }
+              const newMovie = movieRepository.create({
+                title: movie.title,
+                release_date: movie.release_date,
+                poster_path: movie.poster_path,
+                tmdb_average: movie.vote_average,
+                overview: movie.overview,
+                starring: cast,
+                genre: movie.genre_ids,
+              });
+
+              const rutabaga = await movieRepository.insert(newMovie);
+
+              return rutabaga;
             }
 
             return null; // Movie already exists, skip insertion
@@ -77,6 +114,8 @@ router.post('/:movieId', function (req, res) {
         poster_path: axiosres.data.poster_path,
         tmdb_average: axiosres.data.vote_average,
         overview: axiosres.data.overview,
+        starring: axiosres.data.credits.cast,
+        genre: axiosres.data.genres,
       });
       movieRepository
         .insert(newMovie)
