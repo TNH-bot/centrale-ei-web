@@ -1,5 +1,5 @@
 import express from 'express';
-import { appDataSource } from '../datasource.js';
+import appDataSource from '../datasource.js';
 import User from '../entities/user.js';
 
 const router = express.Router();
