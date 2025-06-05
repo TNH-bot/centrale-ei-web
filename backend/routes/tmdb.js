@@ -19,67 +19,63 @@ router.post('/', function (req, res) {
     },
   };
 
+  const movieRepository = appDataSource.getRepository(Movie);
+  movieRepository.deleteAll();
+
+  const actorRepository = appDataSource.getRepository(Actor);
+  actorRepository.deleteAll();
+
   axios
     .request(options)
-    .then((axiosres) => {
-      const movieRepository = appDataSource.getRepository(Movie);
-      movieRepository.deleteAll();
+    .then(async (axiosres) => {
       //console.log(axiosres.data.results);
       console.log('Trending movies fetched from TMDB');
 
       for (const movie of axiosres.data.results) {
+        const cast = await axios
+          .request({
+            method: 'GET',
+            url: `https://api.themoviedb.org/3/movie/${movie.id}/credits`,
+            params: { language: 'en-US', page: '1' },
+            headers: {
+              accept: 'application/json',
+              Authorization:
+                'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
+            },
+          })
+          .then((castres) => {
+            return castres.data.cast;
+          });
+
+        const movieCast = await Promise.all(
+          cast.map(async (actor) => {
+            const existingActor = await actorRepository.findOneBy({
+              id: actor.name,
+            });
+
+            return (
+              existingActor ??
+              actorRepository.create({ id: actor.id, name: actor.name })
+            );
+          })
+        );
+
         // Check if the movie already exists before inserting
-        movieRepository
+        await movieRepository
           .findOneBy({ title: movie.title })
           .then(async (existingMovie) => {
             if (!existingMovie) {
-              console.log('not exists');
-              const cast = await axios
-                .get(`https://api.themoviedb.org/3/movie/${movie.id}/credits`, {
-                  headers: {
-                    accept: 'application/json',
-                    Authorization:
-                      'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
-                  },
-                })
-                .then((response) => response.data.cast);
-
-              const actorRepository = appDataSource.getRepository(Actor);
-              actorRepository.deleteAll();
-              for (const actor of cast) {
-                // Check if the actor already exists before inserting
-                actorRepository
-                  .findOneBy({ id: actor.id })
-                  .then((existingActor) => {
-                    if (!existingActor) {
-                      const newActor = actorRepository.create({
-                        name: actor.name,
-                        id: actor.id,
-                      });
-                      console.log(`Inserting new actor: ${newActor.name}`);
-
-                      return actorRepository.insert(newActor);
-                    }
-
-                    return null; // Actor already exists, skip insertion
-                  });
-              }
               const newMovie = movieRepository.create({
                 title: movie.title,
                 release_date: movie.release_date,
                 poster_path: movie.poster_path,
                 tmdb_average: movie.vote_average,
                 overview: movie.overview,
-                starring: cast,
-                genre: movie.genre_ids,
+                starring: movieCast,
               });
 
-              const rutabaga = await movieRepository.insert(newMovie);
-
-              return rutabaga;
+              await movieRepository.save(newMovie);
             }
-
-            return null; // Movie already exists, skip insertion
           });
       }
       res.json({
