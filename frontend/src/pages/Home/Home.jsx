@@ -56,12 +56,36 @@ const DEFAULT_FORM_VALUES = {
 function Home() {
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
   const [movies, setMovies] = useState([]);
+  const [recommendedMovies, setRecommendedMovies] = useState([]);
   const listmovies = movies
     .filter((movie) =>
       movie.title.toLowerCase().includes(formValues.searchMovie.toLowerCase())
     )
     .map((movie) => <Movie prop={movie} />);
   const isEmptyMovies = listmovies.length === 0;
+
+  function useFetchRecmovies() {
+    useEffect(() => {
+      const options = {
+        method: 'GET',
+        url: 'http://127.0.0.1:5000/recommendations/1?sort_by=tmdb_avg',
+        params: { language: 'en-US', page: '1' },
+        headers: {
+          accept: 'application/json',
+          Authorization:
+            'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
+        },
+      };
+
+      axios
+        .request(options)
+        .then((res) => {
+          console.log(res.data);
+          setRecommendedMovies(res.data.result);
+        })
+        .catch((err) => console.error(err));
+    }, []);
+  }
 
   function useFetchmovies() {
     useEffect(() => {
@@ -88,10 +112,11 @@ function Home() {
   // ...
 
   useFetchmovies();
+  useFetchRecmovies();
 
   return (
     <div className="App">
-      <RecommendedBanner movies={movies} />
+      <RecommendedBanner movies={recommendedMovies} />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Movielist</h1>

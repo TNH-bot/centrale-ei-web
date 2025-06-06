@@ -47,39 +47,51 @@ def get_user_ratings(user_id: int):
         grades = db.query(Grade).filter(Grade.userId == user_id).all()
         return [(g.movieId, g.grade) for g in grades]
     
+def get_movie(movie_id: int):
+    with SessionLocal() as db:
 
+        movie = db.query(Movie).filter(Movie.id == movie_id).first()
+        if not movie:
+            return None
+
+        actor_names = db.query(Actor.name)\
+            .join(MovieStarringActor, Actor.id == MovieStarringActor.actorId)\
+            .filter(MovieStarringActor.movieId == movie_id).all()
+        
+        genre_names = db.query(Genre.name)\
+            .join(MovieGenreGenre, Genre.id == MovieGenreGenre.genreId)\
+            .filter(MovieGenreGenre.movieId == movie_id).all()
+
+
+        return {
+            "id": movie.id,
+            "title": movie.title,
+            "release_date": movie.release_date,
+            "tmdb_avg": movie.tmdb_average,
+            "poster_path": movie.poster_path,
+            "genres": [name for (name,) in genre_names],
+            "actors": [name for (name,) in actor_names]
+        }
     
 def get_all_movies():
     with SessionLocal() as db:
         movies = db.query(Movie).all()
-        result = []
-        for m in movies:
-            result.append({
+        return [
+            {
                 "id": m.id,
                 "title": m.title,
                 "release_date": m.release_date,
                 "tmdb_avg": m.tmdb_average,
                 "poster_path": m.poster_path,
-                "genres": get_genres_for_movie(m.id),
-                "actors": get_actors_for_movie(m.id)
-            })
-        return result
-
+            }
+            for m in movies
+        ]
 
 def get_actors_for_movie(movie_id: int):
     with SessionLocal() as db:
-        actor_names = db.query(Actor.name)\
-            .join(MovieStarringActor, Actor.id == MovieStarringActor.actorId)\
+        joins = db.query(Actor.name).join(MovieStarringActor, Actor.id == MovieStarringActor.actorId)\
             .filter(MovieStarringActor.movieId == movie_id).all()
-        return [name for (name,) in actor_names]
-
-def get_genres_for_movie(movie_id: int):
-    with SessionLocal() as db:
-        genre_names = db.query(Genre.name)\
-            .join(MovieGenreGenre, Genre.id == MovieGenreGenre.genreId)\
-            .filter(MovieGenreGenre.movieId == movie_id).all()
-        return [name for (name,) in genre_names]
-
+        return [name for (name,) in joins]
 
 def get_movies_by_genre(genre_name: str):
     with SessionLocal() as db:
@@ -140,28 +152,6 @@ def get_user_profile(user_id: int):
             "rated_movies": rated_titles,
             "favorite_genres": fav_genres,
             "favorite_actors": fav_actors
-        
-        }
-     
-def get_movie(movie_id: int):
-    with SessionLocal() as db:
-
-        movie = db.query(Movie).filter(Movie.id == movie_id).first()
-        if not movie:
-            print(f"⚠️ Aucun film trouvé avec id {movie_id}")
-            return {"error": f"Aucun film avec id {movie_id}"}
-
-        return {
-            "id": movie.id,
-            "title": movie.title,
-            "release_date": movie.release_date,
-            "tmdb_avg": movie.tmdb_average,
-            "poster_path": movie.poster_path,
-            "genres": get_genres_for_movie(movie_id),
-            "actors": get_actors_for_movie(movie_id),
-            "overview": getattr(movie, "overview", "")
-
-
         }
 # ----------------------------------------
 
@@ -177,14 +167,11 @@ def recommend_movies(user_id: int, top_n: int = 10, sort_by: str = "tmdb_avg"):
     actor_scores = {}
 
     for movie_id in liked_movies:
-        genres = get_genres_for_movie(movie_id)
-        actors = get_actors_for_movie(movie_id)
-
-        for genre in genres:
+        movie = get_movie(movie_id)
+        for genre in movie.get("genres", []):
             liked_genres[genre] = liked_genres.get(genre, 0) + 1
-        for actor in actors:
+        for actor in movie.get("actors", []):
             actor_scores[actor] = actor_scores.get(actor, 0) + 1
-
 
     all_movies = get_all_movies()
     already_seen = set(m_id for m_id, _ in user_ratings)
