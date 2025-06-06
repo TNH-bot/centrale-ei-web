@@ -5,7 +5,8 @@ import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import moviesRouter from './routes/movies.js';
 import tmdbRouter from './routes/tmdb.js';
-import gradesRouter from './routes/grades.js';
+// Update the import path to match the new filename, for example:
+import gradesRouter from './routes/ratings.js';
 import genresRouter from './routes/genres.js';
 import { routeNotFoundJsonHandler } from './services/routeNotFoundJsonHandler.js';
 import { jsonErrorHandler } from './services/jsonErrorHandler.js';
