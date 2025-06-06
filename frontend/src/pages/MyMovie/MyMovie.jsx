@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './MyMovie.css';
+import { useNavigate } from 'react-router-dom';
 
 const MyMovies = () => {
   const [ratedMovies, setRatedMovies] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRatedMovies = async () => {
@@ -11,7 +13,6 @@ const MyMovies = () => {
         const response = await axios.get(
           'http://localhost:8000/movies/graded/1'
         );
-        console.log('Rated Movies:', response.data.movies[0].grades[0].grade);
         setRatedMovies(response.data.movies);
       } catch (error) {
         console.error('Error fetching rated movies:', error);

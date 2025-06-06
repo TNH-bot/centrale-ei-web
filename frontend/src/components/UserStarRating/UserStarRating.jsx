@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useEffect } from 'react';
 
 function UserStarRating({ maxRating = 10, movie_id, onRate }) {
   // note entre 0 et maxRating (ici maxRating = 10)
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8000/grades?user_id=1&movie_id=${movie_id}`)
+      .then((response) => {
+        if (response.data && response.data.grade) {
+          setRating(response.data.grade);
+        }
+      })
+      .catch((error) => {
+        // handle error if needed
+      });
+  }, [movie_id]);
+
   const [rating, setRating] = useState(0); // note initiale
 
   // convertit note sur 10 en note sur 5 étoiles
