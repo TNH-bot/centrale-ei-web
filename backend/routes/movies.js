@@ -20,9 +20,6 @@ router.get('/', function (req, res) {
 router.post('/new', function (req, res) {
   const movieRepository = appDataSource.getRepository(Movie);
   console.log(req.body);
-  //res
-  //  .status(201)
-  //  .json({ message: 'Movie successfully created', movie: req.body || '1' });
   const newMovie = movieRepository.create({
     title: req.body.title,
     release_date: req.body.release_date,
