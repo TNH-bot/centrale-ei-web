@@ -8,8 +8,11 @@ const MyMovies = () => {
   useEffect(() => {
     const fetchRatedMovies = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/grades');
-        setRatedMovies(response.data);
+        const response = await axios.get(
+          'http://localhost:8000/movies/graded/1'
+        );
+        console.log('Rated Movies:', response.data.movies[0].grades[0].grade);
+        setRatedMovies(response.data.movies);
       } catch (error) {
         console.error('Error fetching rated movies:', error);
       }
@@ -26,13 +29,13 @@ const MyMovies = () => {
       ) : (
         <div className="movies-grid">
           {ratedMovies.map((movie) => (
-            <div key={movie.movie_id} className="movie-card">
+            <div key={movie.id} className="movie-card">
               <img
                 src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
                 alt={movie.title}
               />
               <h4>{movie.title}</h4>
-              <p>Your rating: {movie.user_rating} ★</p>
+              <p>Your rating: {movie.grades[0].grade} ★</p>
             </div>
           ))}
         </div>
