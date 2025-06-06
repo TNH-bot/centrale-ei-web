@@ -7,7 +7,7 @@ import Users from './pages/Users/Users';
 import AddMovie from './pages/AddMovie/AddMovie';
 
 import MovieDetail from './pages/MovieDetail/MovieDetail';
-import MyMovie from './pages/My Movie/MyMovie';
+import MyMovie from './pages/MyMovie/MyMovie';
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
         <Route path="addmovie" element={<AddMovie />} />
         <Route path="about" element={<About />} />
         <Route path="/movie/:title" element={<MovieDetail />} />
-        <Route path="myMovie" element={<MyMovie />} />
+        <Route path="MyMovies" element={<MyMovie />} />
       </Routes>
     </Layout>
   );
