@@ -1,9 +1,53 @@
 import './Home.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import logo from './logo.svg';
 import Movie from '../../components/Movie/Movie';
 import { api } from '../../api';
+
+function RecommendedBanner({ movies }) {
+  const navigate = useNavigate();
+  const visibleMovies = movies.slice(0, 10); // max 10 films
+  const repeated = [...visibleMovies, ...visibleMovies];
+
+  function handleClick(movie) {
+    // Modifie ici pour correspondre à ta route de détail
+    navigate(`/movie/${encodeURIComponent(movie.title)}`, {
+      state: { Detailprop: movie },
+    });
+  }
+
+  return (
+    <div className="recommended-banner">
+      <h3>Recommended for you</h3>
+      <div className="scroll-wrapper">
+        <div className="scroll-track">
+          {repeated.map((movie, index) => (
+            <div
+              key={`${movie.id}-${index}`}
+              className="recommended-movie"
+              onClick={() => handleClick(movie)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleClick(movie);
+                }
+              }}
+            >
+              <img
+                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                alt={movie.title}
+                title={movie.title}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const DEFAULT_FORM_VALUES = {
   searchMovie: '',
@@ -47,6 +91,7 @@ function Home() {
 
   return (
     <div className="App">
+      <RecommendedBanner movies={movies} />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Movielist</h1>
