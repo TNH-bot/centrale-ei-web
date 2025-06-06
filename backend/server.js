@@ -5,6 +5,9 @@ import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import moviesRouter from './routes/movies.js';
 import tmdbRouter from './routes/tmdb.js';
+// Update the import path to match the new filename, for example:
+import gradesRouter from './routes/ratings.js';
+import genresRouter from './routes/genres.js';
 import { routeNotFoundJsonHandler } from './services/routeNotFoundJsonHandler.js';
 import { jsonErrorHandler } from './services/jsonErrorHandler.js';
 import appDataSource from './datasource.js';
@@ -25,6 +28,8 @@ appDataSource
     app.use('/users', usersRouter);
     app.use('/movies', moviesRouter);
     app.use('/tmdb', tmdbRouter);
+    app.use('/grades', gradesRouter);
+    app.use('/genres', genresRouter);
 
     // Register 404 middleware and error handler
     app.use(routeNotFoundJsonHandler); // this middleware must be registered after all routes to handle 404 correctly

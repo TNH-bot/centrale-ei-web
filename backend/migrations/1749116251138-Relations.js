@@ -6,8 +6,8 @@
  * @class
  * @implements {MigrationInterface}
  */
-export default class Relation1749109416630 {
-    name = 'Relation1749109416630'
+export default class Relations1749116251138 {
+    name = 'Relations1749116251138'
 
     async up(queryRunner) {
         await queryRunner.query(`
