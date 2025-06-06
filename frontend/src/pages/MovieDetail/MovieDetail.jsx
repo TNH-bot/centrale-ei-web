@@ -55,7 +55,7 @@ function MovieDetail() {
 
       <div className="rating-section">
         <h4>Rate this movie:</h4>
-        <UserStarRating />
+        <UserStarRating movie_id={Detailprop.id} />
       </div>
     </div>
   );

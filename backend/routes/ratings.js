@@ -46,13 +46,13 @@ router.post('/', async function (req, res) {
       .status(200)
       .json({ message: 'Grade successfully updated', id: existingGrade.id });
   } else {
+    const newGrade = gradeRepository.create({
+      grade: req.body.grade,
+      user: gradedUser,
+      movie: gradedMovie,
+    });
     gradeRepository
-      .create({
-        grade: req.body.grade,
-        user: gradedUser,
-        movie: gradedMovie,
-      })
-      .insert()
+      .insert(newGrade)
       .then(function (savedGrade) {
         res
           .status(201)

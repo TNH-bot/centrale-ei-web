@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-function UserStarRating({ maxRating = 10, onRate }) {
+function UserStarRating({ maxRating = 10, movie_id, onRate }) {
   // note entre 0 et maxRating (ici maxRating = 10)
   const [rating, setRating] = useState(0);
 
@@ -17,6 +17,17 @@ function UserStarRating({ maxRating = 10, onRate }) {
     } // callback optionnel
 
     console.log(`Rating set to: ${newRating}`);
+    console.log(`Movie ID: ${movie_id}`);
+    axios({
+      method: 'post',
+      url: 'http://localhost:8000/grades', // Remplacez par l'URL de votre API
+      headers: {},
+      data: {
+        user_id: 1,
+        movie_id: movie_id,
+        grade: newRating, // This is the body part
+      },
+    });
   };
 
   const stars = [];
