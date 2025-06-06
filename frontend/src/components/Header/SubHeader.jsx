@@ -14,13 +14,13 @@ const SubHeader = () => {
       <div className="dropdown nav-item">
         <span className="dropdown-label">Genre</span>
         <div className="dropdown-content">
-          <Link className="Link" to="/My Movies">
+          <Link className="Link" to="/MyMovies">
             Genre 1
           </Link>
-          <Link className="Link" to="/My Movies">
+          <Link className="Link" to="/MyMovies">
             Genre 2
           </Link>
-          <Link className="Link" to="/My Movies">
+          <Link className="Link" to="/MyMovies">
             Genre 3
           </Link>
         </div>
@@ -35,8 +35,8 @@ const SubHeader = () => {
         }
       />
       <div>|</div>
-      <Link className="SubLink" to="/My Movies">
-        My Movies
+      <Link className="SubLink" to="/MyMovies">
+        MyMovies
       </Link>
     </div>
   );
