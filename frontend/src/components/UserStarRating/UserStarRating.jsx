@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function UserStarRating({ maxRating = 10, movie_id, onRate }) {
   // note entre 0 et maxRating (ici maxRating = 10)
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(0); // note initiale
 
   // convertit note sur 10 en note sur 5 étoiles
   const starsRating = rating / 2;
@@ -16,8 +16,6 @@ function UserStarRating({ maxRating = 10, movie_id, onRate }) {
       onRate(newRating);
     } // callback optionnel
 
-    console.log(`Rating set to: ${newRating}`);
-    console.log(`Movie ID: ${movie_id}`);
     axios({
       method: 'post',
       url: 'http://localhost:8000/grades', // Remplacez par l'URL de votre API

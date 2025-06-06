@@ -11,10 +11,11 @@ const movieRepository = appDataSource.getRepository(Movie);
 
 //Get single grade by user and movie
 router.get('/', function (req, res) {
+  console.log(req.body);
   gradeRepository
     .findOneBy({
-      User: userRepository.findOneBy({ id: req.body.user_id }),
-      Movie: movieRepository.findOneBy({ id: req.body.movie_id }),
+      user: userRepository.findOneBy({ id: req.body.user_id }),
+      movie: movieRepository.findOneBy({ id: req.body.movie_id }),
     })
     .then(function (gradeFound) {
       if (!gradeFound) {
