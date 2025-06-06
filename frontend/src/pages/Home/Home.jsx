@@ -12,7 +12,9 @@ function Home() {
   const [formValues, setFormValues] = useState(DEFAULT_FORM_VALUES);
   const [movies, setMovies] = useState([]);
   const listmovies = movies
-    .filter((movie) => movie.title.includes(formValues.searchMovie))
+    .filter((movie) =>
+      movie.title.toLowerCase().includes(formValues.searchMovie.toLowerCase())
+    )
     .map((movie) => <Movie prop={movie} />);
   const isEmptyMovies = listmovies.length === 0;
 
@@ -20,7 +22,7 @@ function Home() {
     useEffect(() => {
       const options = {
         method: 'GET',
-        url: 'https://api.themoviedb.org/3/movie/top_rated',
+        url: 'http://localhost:8000/movies',
         params: { language: 'en-US', page: '1' },
         headers: {
           accept: 'application/json',
@@ -32,8 +34,8 @@ function Home() {
       axios
         .request(options)
         .then((res) => {
-          console.log(res.data.results);
-          setMovies(res.data.results);
+          console.log(res.data);
+          setMovies(res.data.movies);
         })
         .catch((err) => console.error(err));
       console.log('HelloWorld');

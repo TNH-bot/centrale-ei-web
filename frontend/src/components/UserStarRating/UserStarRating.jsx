@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function UserStarRating({ maxRating = 10, onRate }) {
   // note entre 0 et maxRating (ici maxRating = 10)
@@ -14,6 +15,8 @@ function UserStarRating({ maxRating = 10, onRate }) {
     if (onRate) {
       onRate(newRating);
     } // callback optionnel
+
+    console.log(`Rating set to: ${newRating}`);
   };
 
   const stars = [];

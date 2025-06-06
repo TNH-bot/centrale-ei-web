@@ -31,7 +31,7 @@ function MovieDetail() {
     return <p>Film introuvable.</p>;
   }
 
-  const ratingOutOfFive = Detailprop.vote_average / 2;
+  const ratingOutOfFive = Detailprop.tmdb_average / 2;
 
   return (
     <div className="MovieDetail-container">
