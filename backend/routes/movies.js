@@ -45,6 +45,32 @@ router.post('/new', function (req, res) {
     });
 });
 
+router.get('/graded/:userId', async function (req, res) {
+  try {
+    const result = await appDataSource
+      .getRepository(Movie)
+      .createQueryBuilder('movie')
+      .innerJoin('movie.grades', 'grade', 'grade.userId = :userId', {
+        userId: 1,
+      })
+      .select([
+        'movie.id',
+        'movie.title',
+        'movie.poster_path',
+        'movie.release_date',
+        'grade.grade',
+      ])
+      .getMany();
+
+    res.json({ movies: result });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: 'Error while fetching graded movies by user' });
+  }
+});
+
 router.get('/:movieId', function (req, res) {
   appDataSource
     .getRepository(Movie)
